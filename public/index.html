@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistem Manajemen Data Pasien dengan Database">
+  <title>MediCare Pro - Sistem Manajemen Pasien</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="header-brand">
+          <div class="brand-icon">💊</div>
+          <div>
+            <h1 class="brand-title">MediCare Pro</h1>
+            <p class="brand-subtitle">Sistem Manajemen Pasien - Database MySQL</p>
+          </div>
+        </div>
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-label">Total Pasien</span>
+            <span class="stat-value" id="totalPasien">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Status</span>
+            <span class="stat-value status-online" id="dbStatus">●</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Form Section -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 class="card-title">Input Data Pasien</h2>
+            <p class="card-subtitle">Tambahkan atau edit data pasien baru ke database</p>
+          </div>
+
+          <form id="pasienForm" class="form">
+            <input type="hidden" id="id">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nama">Nama Pasien</label>
+                <input 
+                  type="text" 
+                  id="nama" 
+                  placeholder="Masukkan nama lengkap"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="umur">Umur</label>
+                <input 
+                  type="number" 
+                  id="umur" 
+                  placeholder="Masukkan umur"
+                  min="1"
+                  max="150"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="diagnosa">Diagnosa</label>
+                <input 
+                  type="text" 
+                  id="diagnosa" 
+                  placeholder="Masukkan diagnosa"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="submitBtn">
+                <span class="btn-icon">✓</span>
+                <span class="btn-text">Simpan Data</span>
+              </button>
+              <button type="button" id="batalBtn" class="btn btn-secondary" style="display: none;">
+                <span class="btn-icon">✕</span>
+                <span class="btn-text">Batal Edit</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Alert Section -->
+        <div id="alertContainer" class="alert-container"></div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+          <div class="spinner"></div>
+          <p>Memuat data...</p>
+        </div>
+
+        <!-- Table Section -->
+        <div class="card table-card">
+          <div class="card-header">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+              <div>
+                <h2 class="card-title">Daftar Pasien</h2>
+              </div>
+              <div class="header-actions">
+                <button id="refreshBtn" class="btn btn-secondary btn-sm" title="Refresh data">
+                  <span class="btn-icon">🔄</span>
+                  <span class="btn-text">Refresh</span>
+                </button>
+              </div>
+            </div>
+            <div class="table-controls">
+              <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input" 
+                placeholder="Cari nama, diagnosa, atau umur..."
+              >
+              <select id="sortSelect" class="sort-select">
+                <option value="terbaru">Terbaru</option>
+                <option value="nama-asc">Nama (A-Z)</option>
+                <option value="nama-desc">Nama (Z-A)</option>
+                <option value="umur-asc">Umur (Rendah ke Tinggi)</option>
+                <option value="umur-desc">Umur (Tinggi ke Rendah)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table id="tabelPasien" class="table">
+              <thead>
+                <tr>
+                  <th class="col-id">ID</th>
+                  <th class="col-nama">Nama</th>
+                  <th class="col-umur">Umur</th>
+                  <th class="col-diagnosa">Diagnosa</th>
+                  <th class="col-aksi">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+              </tbody>
+            </table>
+            <div id="emptyState" class="empty-state">
+              <div class="empty-icon">📋</div>
+              <h3>Tidak Ada Data Pasien</h3>
+              <p>Mulai dengan menambahkan data pasien baru di atas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 MediCare. Sistem Manajemen Pasien.</p>
+    </footer>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Konfirmasi Penghapusan</h2>
+        <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDeleteModal()">Batal</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Hapus Data</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
